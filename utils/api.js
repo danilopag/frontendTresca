@@ -5,21 +5,18 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'http://localhost:5000/api', // Assicurati che la porta corrisponda a quella del tuo backend
+    baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'
 });
 
 api.interceptors.request.use(
     (config) => {
-        // Aggiungi il token JWT alle richieste se presente
         const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
         if (token) {
             config.headers['Authorization'] = `Bearer ${token}`;
         }
         return config;
     },
-    (error) => {
-        return Promise.reject(error);
-    }
+    (error) => Promise.reject(error)
 );
 
 export default api;
