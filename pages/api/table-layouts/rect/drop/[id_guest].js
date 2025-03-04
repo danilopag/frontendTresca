@@ -1,7 +1,7 @@
 // pages/api/table_layout/rect/[id_guest].js
 import { createHandler } from '../../../../../utils/nc';
 import db from '../../../../../utils/db';
-import { authenticateToken } from './/../../../../utils/auth';
+import { authenticateToken } from '../../../../../utils/auth';
 
 const handler = createHandler()
     // DELETE /api/table_layout/rect/:id_guest?plan=xxx

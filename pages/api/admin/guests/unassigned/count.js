@@ -1,6 +1,6 @@
-import { createHandler } from '../../../../../../utils/nc';
-import db from '../../../../../../utils/db';
-import { authenticateToken, authorizeAdmin } from '../../../../../../utils/auth';
+import { createHandler } from '../../../../../utils/nc';
+import db from '../../../../../utils/db';
+import { authenticateToken, authorizeAdmin } from '../../../../../utils/auth';
 
 const handler = createHandler()
     .get(async (req, res) => {
