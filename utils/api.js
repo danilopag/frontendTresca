@@ -5,7 +5,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'https://backendtresca-production.up.railway.app/api'
+    baseURL: '/api',
 });
 
 api.interceptors.request.use(

@@ -78,7 +78,7 @@ function AddSingleGuestRoundDialog({
         try {
             // 1) Rimuovi vecchia assegnazione (se esiste)
             try {
-                await api.delete(`/table-layouts/${selectedGuest}`, {
+                await api.delete(`/table-layouts/guest/${selectedGuest}`, {
                     params: { plan: currentPlan },
                 });
             } catch (error) {

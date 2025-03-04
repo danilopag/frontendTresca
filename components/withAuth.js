@@ -42,7 +42,6 @@ const withAuth = (WrappedComponent) => {
 
                 const currentPath = router.pathname;
                 const allowedRoutes = payload.allowed_routes || []; // Autorizzazioni definite nel token
-                console.log(currentPath, allowedRoutes);
                 if (payload.is_admin === 1) {
                     // Se admin, reindirizza a /admin/dashboard
                     //router.replace('/admin/dashboard');

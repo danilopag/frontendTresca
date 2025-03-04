@@ -915,11 +915,7 @@ function OnePageEvent() {
     // *** RENDER PRINCIPALE ***
     return (
         <DndProvider backend={dndBackend}>
-            <Background />
-            <Overlay />
-
             <Container maxWidth="xl">
-                <ContentOverlay>
                     {/* Titolo / Data */}
                     <Box textAlign="center" mb={3}>
                         <Typography variant="h3" sx={{ fontWeight: 'bold', color: '#788c3c' }}>
@@ -970,7 +966,7 @@ function OnePageEvent() {
                                     p: 2,
                                     borderBottomLeftRadius: 6,
                                     borderBottomRightRadius: 6,
-                                    boxShadow: 1,
+                                    boxShadow: 5,
                                 }}
                             >
                                 <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
@@ -990,103 +986,53 @@ function OnePageEvent() {
                                     </Button>
                                 </Box>
 
-                                <Box sx={{ maxHeight: isSmallScreen ? 300 : 600, overflowY: 'auto' }}>
-                                    {/* Categorie */}
-                                    {categories.map((cat) => (
-                                        <Box
-                                            key={cat.id_category}
-                                            sx={{
-                                                backgroundColor: '#f5f5f5',
-                                                borderRadius: 2,
-                                                mb: 2,
-                                                p: 1,
-                                                boxShadow: 1,
-                                            }}
-                                        >
-                                            <Box
-                                                display="flex"
-                                                justifyContent="space-between"
-                                                alignItems="center"
-                                                mb={1}
-                                            >
-                                                <Typography variant="subtitle1" fontWeight="bold">
-                                                    {cat.name_categories}
-                                                </Typography>
-                                                <Box>
-                                                    <Tooltip title="Modifica Gruppo">
-                                                        <IconButton
-                                                            size="small"
-                                                            onClick={() => handleOpenCategoryDialog(cat)}
-                                                        >
-                                                            <Edit fontSize="small" />
-                                                        </IconButton>
-                                                    </Tooltip>
-                                                    <Tooltip title="Elimina Gruppo">
-                                                        <IconButton
-                                                            size="small"
-                                                            onClick={() => handleDeleteCategory(cat.id_category)}
-                                                        >
-                                                            <Delete fontSize="small" />
-                                                        </IconButton>
-                                                    </Tooltip>
-                                                </Box>
-                                            </Box>
-
-                                            {/* Invitati del gruppo */}
-                                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                                                {getGuestsByCategory(cat.id_category).map((g) => (
-                                                    <Box
-                                                        key={g.id_guest}
-                                                        sx={{
-                                                            backgroundColor: '#eee',
-                                                            borderRadius: 2,
-                                                            p: '2px 4px',
-                                                            display: 'flex',
-                                                            alignItems: 'center',
-                                                        }}
-                                                    >
-                                                        <Typography
-                                                            variant="caption"
-                                                            sx={{ fontWeight: 'bold', mr: 0.5, cursor: 'pointer' }}
-                                                            onClick={() => handleOpenGuestDrawer(g)}
-                                                        >
-                                                            {g.guest_name}
-                                                        </Typography>
-                                                        {(g.intolerances || []).map((dbKey) => (
-                                                            <Tooltip key={dbKey} title={mapIntolerance(dbKey)}>
-                                                                <img
-                                                                    src={`/icons/${dbKey}.png`}
-                                                                    alt={dbKey}
-                                                                    style={{ width: 14, height: 14, marginLeft: 2 }}
-                                                                />
-                                                            </Tooltip>
-                                                        ))}
-                                                        <IconButton
-                                                            size="small"
-                                                            onClick={() => handleDeleteGuest(g.id_guest)}
-                                                        >
-                                                            <Delete fontSize="small" />
-                                                        </IconButton>
-                                                    </Box>
-                                                ))}
-                                            </Box>
-                                        </Box>
-                                    ))}
-
-                                    {/* Invitati senza gruppo */}
+                            <Box sx={{ maxHeight: isSmallScreen ? 300 : 600, overflowY: 'auto' }}>
+                                {/* Categorie */}
+                                {categories.map((cat) => (
                                     <Box
+                                        key={cat.id_category}
                                         sx={{
-                                            backgroundColor: '#eee',
-                                            borderRadius: 2,
+                                            backgroundColor: '#fff',
+                                            borderRadius: 4,
+                                            mb: 2,
+                                            mr: 1,
                                             p: 1,
-                                            boxShadow: 1,
+                                            boxShadow: 2,
+                                            border: '2px solid #eee', 
                                         }}
                                     >
-                                        <Typography variant="subtitle1" fontWeight="bold" mb={1}>
-                                            Senza Gruppo
-                                        </Typography>
-                                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                                            {getGuestsWithoutCategory().map((g) => (
+                                        <Box
+                                            display="flex"
+                                            justifyContent="space-between"
+                                            alignItems="center"
+                                            mb={1}
+                                        >
+                                            <Typography variant="subtitle1" fontWeight="bold">
+                                                {cat.name_categories}
+                                            </Typography>
+                                            <Box>
+                                                <Tooltip title="Modifica Gruppo">
+                                                    <IconButton
+                                                        size="small"
+                                                        onClick={() => handleOpenCategoryDialog(cat)}
+                                                    >
+                                                        <Edit fontSize="small" />
+                                                    </IconButton>
+                                                </Tooltip>
+                                                <Tooltip title="Elimina Gruppo">
+                                                    <IconButton
+                                                        size="small"
+                                                        onClick={() => handleDeleteCategory(cat.id_category)}
+                                                    >
+                                                        <Delete fontSize="small" />
+                                                    </IconButton>
+                                                </Tooltip>
+                                            </Box>
+                                        </Box>
+
+                                        {/* Invitati del gruppo */}
+                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                            {getGuestsByCategory(cat.id_category).map((g) => (
                                                 <Box
                                                     key={g.id_guest}
                                                     sx={{
@@ -1095,25 +1041,32 @@ function OnePageEvent() {
                                                         p: '2px 4px',
                                                         display: 'flex',
                                                         alignItems: 'center',
+                                                        justifyContent: 'space-between',
+                                                        width: '100%',
                                                         boxShadow: 1,
+                                                        border: '1px solid #eee',
                                                     }}
                                                 >
-                                                    <Typography
-                                                        variant="caption"
-                                                        sx={{ fontWeight: 'bold', mr: 0.5, cursor: 'pointer' }}
-                                                        onClick={() => handleOpenGuestDrawer(g)}
-                                                    >
-                                                        {g.guest_name}
-                                                    </Typography>
-                                                    {(g.intolerances || []).map((dbKey) => (
-                                                        <Tooltip key={dbKey} title={dbKey}>
-                                                            <img
-                                                                src={`/icons/${dbKey}.png`}
-                                                                alt={dbKey}
-                                                                style={{ width: 14, height: 14, marginLeft: 2 }}
-                                                            />
-                                                        </Tooltip>
-                                                    ))}
+                                                    {/* Nome + Intolleranze */}
+                                                    <Box sx={{ display: 'flex', alignItems: 'center' }} onClick={() => handleOpenGuestDrawer(g)}>
+                                                        <Typography
+                                                            variant="caption"
+                                                            sx={{ fontWeight: 'bold', mr: 0.5, cursor: 'pointer' }}
+                                                        >
+                                                            {g.guest_name}
+                                                        </Typography>
+                                                        {(g.intolerances || []).map((dbKey) => (
+                                                            <Tooltip key={dbKey} title={mapIntolerance(dbKey)}>
+                                                                <img
+                                                                    src={`/icons/${dbKey}.png`}
+                                                                    alt={dbKey}
+                                                                    style={{ width: 20, height: 20, marginLeft: 2 }}
+                                                                />
+                                                            </Tooltip>
+                                                        ))}
+                                                    </Box>
+
+                                                    {/* Icona Elimina */}
                                                     <IconButton
                                                         size="small"
                                                         onClick={() => handleDeleteGuest(g.id_guest)}
@@ -1124,12 +1077,76 @@ function OnePageEvent() {
                                             ))}
                                         </Box>
                                     </Box>
+                                ))}
+
+                                {/* Invitati senza gruppo */}
+                                <Box
+                                    sx={{
+                                        backgroundColor: '#fff',
+                                        borderRadius: 4,
+                                        mb: 2,
+                                        mr: 1,
+                                        p: 1,
+                                        boxShadow: 2,
+                                        border: '2px solid #eee', 
+                                    }}
+                                >
+                                    <Typography variant="subtitle1" fontWeight="bold" mb={1}>
+                                        Senza Gruppo
+                                    </Typography>
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                        {getGuestsWithoutCategory().map((g) => (
+                                            <Box
+                                                key={g.id_guest}
+                                                sx={{
+                                                    backgroundColor: '#fff',
+                                                    borderRadius: 2,
+                                                    p: '2px 4px',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'space-between',
+                                                    width: '100%',
+                                                    boxShadow: 1,
+                                                    border: '1px solid #eee',
+                                                }}
+                                            >
+                                                {/* Nome + Intolleranze */}
+                                                <Box sx={{ display: 'flex', alignItems: 'center' }} onClick={() => handleOpenGuestDrawer(g)}>
+                                                    <Typography
+                                                        variant="caption"
+                                                        sx={{ fontWeight: 'bold', mr: 0.5, cursor: 'pointer' }}
+                                                    >
+                                                        {g.guest_name}
+                                                    </Typography>
+                                                    {(g.intolerances || []).map((dbKey) => (
+                                                        <Tooltip key={dbKey} title={dbKey}>
+                                                            <img
+                                                                src={`/icons/${dbKey}.png`}
+                                                                alt={dbKey}
+                                                                style={{ width: 20, height: 20, marginLeft: 2 }}
+                                                            />
+                                                        </Tooltip>
+                                                    ))}
+                                                </Box>
+
+                                                {/* Icona Elimina */}
+                                                <IconButton
+                                                    size="small"
+                                                    onClick={() => handleDeleteGuest(g.id_guest)}
+                                                >
+                                                    <Delete fontSize="small" />
+                                                </IconButton>
+                                            </Box>
+                                        ))}
+                                    </Box>
                                 </Box>
+                            </Box>
+
 
                                 {/* MODIFICA: aggiunta riga finale con totale invitati */}
                                 <Box mt={2} textAlign="right">
                                     <Typography variant="body2" fontWeight="bold">
-                                        N. Totale invitati: {guests.length}
+                                        N. Totale Invitati: {guests.length}
                                     </Typography>
                                 </Box>
                             </Box>
@@ -1208,11 +1225,10 @@ function OnePageEvent() {
                             </Box>
                         </Grid>
                     </Grid>
-                </ContentOverlay>
             </Container>
 
             {/* ------ DRAWER INVITATO ------ */}
-            <Drawer anchor="right" open={guestDrawerOpen} onClose={handleCloseGuestDrawer}>
+            <Drawer anchor="left" open={guestDrawerOpen} onClose={handleCloseGuestDrawer}>
                 <Box sx={{ width: 300, p: 2 }}>
                     <Box display="flex" justifyContent="space-between" alignItems="center">
                         <Typography variant="h6">

@@ -107,7 +107,7 @@ const MainPage = () => {
           <CardContent>
             <Box textAlign="center" mb={2}>
               <img
-                src="/logotenutatresca.png"
+                src="/logotenutatresca.jpeg"
                 alt="Logo Tresca"
                 style={{
                   width: '100%',
@@ -148,6 +148,7 @@ const MainPage = () => {
                       <Lock />
                     </InputAdornment>
                   ),
+                  autoComplete: 'current-password', // Aggiungi questa linea
                 }}
               />
 

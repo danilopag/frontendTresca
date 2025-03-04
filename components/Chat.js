@@ -55,7 +55,7 @@ const Chat = () => {
     useEffect(() => {
         if (user) {
             fetchMessages();
-            const interval = setInterval(fetchMessages, 10000); // Aggiorna ogni 10 secondi
+            const interval = setInterval(fetchMessages, 100000); // Aggiorna ogni 10 secondi
             return () => clearInterval(interval);
         }
     }, [user]);
