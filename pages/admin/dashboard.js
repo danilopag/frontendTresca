@@ -34,7 +34,6 @@ import {
     Edit as EditIcon,
 } from '@mui/icons-material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import '@fontsource/playfair-display';
 import AdminChat from '../../components/AdminChat';
 import AlertModal from '../../components/AlertModal';
 import RegisterUserDialog from '../../components/RegisterUserDialog';
@@ -415,7 +414,6 @@ const AdminDashboard = () => {
                         <Typography
                             variant="h4"
                             gutterBottom
-                            sx={{ fontFamily: 'Playfair Display, serif' }}
                         >
                             Dashboard Amministratore
                         </Typography>
@@ -559,10 +557,10 @@ const AdminDashboard = () => {
                                                         <DeleteIcon />
                                                     </IconButton>
                                                 </Tooltip>
-                                                <Tooltip title="Blocca Modifiche Utente">
+                                                <Tooltip title={user.lockEdit ? "Modifiche Utente Bloccate!" : "Blocca Modifiche Utente"}>
                                                     <IconButton
                                                         onClick={() => handleLockEdit(user.id_user)}
-                                                        sx={{ color: '#788c3c' }}
+                                                        sx={{ color: user.lockEdit ? '#D70040' : '#788c3c' }}
                                                     >
                                                         <LockOutlinedIcon />
                                                     </IconButton>

@@ -38,14 +38,14 @@ const TableCard = ({
             sx={{
                 backgroundColor: 'transparent',
                 boxShadow: 'none',
-                border: '1px solid #788c3c',
-                borderRadius: 2,
-                padding: 2,
+                //border: '1px solid #788c3c',
+                //borderRadius: 2,
+                //padding: 2,
                 height: '100%',
             }}
         >
             <CardContent>
-                <Box display="flex" alignItems="center" justifyContent="space-between" mb={1}>
+                <Box display="flex" alignItems="center" justifyContent="space-between" mb={1} paddingRight={1}>
                     <Typography variant="h6" noWrap>
                         {editTableName || table.table_name}
                     </Typography>
@@ -53,7 +53,7 @@ const TableCard = ({
                         <Tooltip title="Modifica Tavolo">
                             <IconButton
                                 onClick={handleEdit}
-                                size="small"
+                                size="medium"
                                 sx={{ mr: 1, color: '#788c3c' }}
                             >
                                 <Edit />
@@ -62,8 +62,8 @@ const TableCard = ({
                         <Tooltip title="Elimina Tavolo">
                             <IconButton
                                 onClick={handleDelete}
-                                size="small"
-                                sx={{ color: '#788c3c' }}
+                                size="medium"
+                                sx={{ color: '#D70040' }}
                             >
                                 <Delete />
                             </IconButton>

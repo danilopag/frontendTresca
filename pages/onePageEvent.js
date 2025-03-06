@@ -50,7 +50,7 @@ import TableCard from '../components/TableCard';
 
 import api from '../utils/api';
 
-/* ----- SFONDO / OVERLAY ----- */
+/* ----- SFONDO / OVERLAY ----- 
 const Background = styled('div')({
     backgroundImage: 'url(/cover.jpg)',
     backgroundSize: 'cover',
@@ -73,7 +73,7 @@ const Overlay = styled('div')({
     height: '100%',
     zIndex: -1,
 });
-
+*/
 /* ----- CONTENITORE PRINCIPALE ----- */
 const ContentOverlay = styled('div')(({ theme }) => ({
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
@@ -495,11 +495,21 @@ function OnePageEvent() {
         const foundTable = tables.find((t) => t.id_table === foundMT.id_table);
         if (!foundTable) return;
 
+        // Salvo la posizione precedente
+        const prevX = foundMT.x;
+        const prevY = foundMT.y;
+
+        // Aggiornamento ottimistico: modifico l'array locale
+        foundMT.x = newX;
+        foundMT.y = newY;
+
         try {
             await api.put(`/map_tables/${mapTableId}`, { x: newX, y: newY });
             fetchMapTables();
         } catch (error) {
             console.error(error);
+            foundMT.x = prevX;
+            foundMT.y = prevY;
             showAlert('Errore', 'Impossibile spostare tavolo in mappa');
         }
     };
@@ -917,7 +927,7 @@ function OnePageEvent() {
         <DndProvider backend={dndBackend}>
             <Container maxWidth="xl">
                     {/* Titolo / Data */}
-                    <Box textAlign="center" mb={3}>
+                    <Box textAlign="center" mb={3} paddingTop={2}>
                         <Typography variant="h3" sx={{ fontWeight: 'bold', color: '#788c3c' }}>
                             {eventName || 'NOME EVENTO'}
                         </Typography>
@@ -931,11 +941,14 @@ function OnePageEvent() {
                         <Grid item xs={12} md={4}>
                             <Box
                                 sx={{
-                                    backgroundColor: '#788c3c',
-                                    color: 'white',
+                                    backgroundColor: '#fff',
+                                    color: '#788c3c',
+                                    //border: 1,
+                                    //borderColor: '#ccc',
                                     p: 2,
                                     borderTopLeftRadius: 6,
                                     borderTopRightRadius: 6,
+                                    //boxShadow: 1,
                                 }}
                             >
                                 <Box display="flex" justifyContent="space-between" alignItems="center">
@@ -946,7 +959,7 @@ function OnePageEvent() {
 
                                     {/* MODIFICA: rimosso IconButton con +, sostituito con Button */}
                                     <Button
-                                        size="small"
+                                        size="medium"
                                         startIcon={<AddCircleOutline />}
                                         onClick={() => handleOpenGuestDrawer(null)}
                                         sx={{
@@ -966,20 +979,21 @@ function OnePageEvent() {
                                     p: 2,
                                     borderBottomLeftRadius: 6,
                                     borderBottomRightRadius: 6,
-                                    boxShadow: 5,
+                                    boxShadow: 2,
                                 }}
                             >
-                                <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
+                            <Box display="flex" justifyContent="space-between" alignItems="center" mb={1} borderBottom={1} borderColor="#ccc" paddingBlockEnd={1}> 
                                     <Typography variant="body1" fontWeight="bold">
                                         Organizza in gruppi
                                     </Typography>
                                     <Button
-                                        size="small"
+                                        size="medium"
+                                        startIcon={<AddCircleOutline />}
                                         onClick={() => handleOpenCategoryDialog(null)}
                                         sx={{
-                                            backgroundColor: '#788c3c',
-                                            color: 'white',
-                                            ':hover': { backgroundColor: '#657a33' },
+                                            backgroundColor: 'white',
+                                            color: '#788c3c',
+                                            ':hover': { backgroundColor: '#f0f0f0' },
                                         }}
                                     >
                                         Crea Gruppo
@@ -993,12 +1007,13 @@ function OnePageEvent() {
                                         key={cat.id_category}
                                         sx={{
                                             backgroundColor: '#fff',
-                                            borderRadius: 4,
+                                            //borderRadius: 4,
                                             mb: 2,
                                             mr: 1,
                                             p: 1,
-                                            boxShadow: 2,
-                                            border: '2px solid #eee', 
+                                            marginBottom: 1,
+                                            //boxShadow: 2,
+                                            //border: '2px solid #eee', 
                                         }}
                                     >
                                         <Box
@@ -1006,8 +1021,9 @@ function OnePageEvent() {
                                             justifyContent="space-between"
                                             alignItems="center"
                                             mb={1}
+                                            borderBottom={1} borderColor="#ccc"
                                         >
-                                            <Typography variant="subtitle1" fontWeight="bold">
+                                            <Typography variant="subtitle1" fontWeight="bold" color='#788c3c'>
                                                 {cat.name_categories}
                                             </Typography>
                                             <Box>
@@ -1015,6 +1031,9 @@ function OnePageEvent() {
                                                     <IconButton
                                                         size="small"
                                                         onClick={() => handleOpenCategoryDialog(cat)}
+                                                        sx={{
+                                                            color: '#788c3c',
+                                                            ':hover': { backgroundColor: '#f0f0f0' }, }}
                                                     >
                                                         <Edit fontSize="small" />
                                                     </IconButton>
@@ -1023,6 +1042,10 @@ function OnePageEvent() {
                                                     <IconButton
                                                         size="small"
                                                         onClick={() => handleDeleteCategory(cat.id_category)}
+                                                        sx={{
+                                                            color: '#D70040',
+                                                            ':hover': { backgroundColor: '#f0f0f0' },
+                                                        }}
                                                     >
                                                         <Delete fontSize="small" />
                                                     </IconButton>
@@ -1031,20 +1054,21 @@ function OnePageEvent() {
                                         </Box>
 
                                         {/* Invitati del gruppo */}
-                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }} /*borderBottom={2} borderColor="#788c3c"*/>
                                             {getGuestsByCategory(cat.id_category).map((g) => (
                                                 <Box
                                                     key={g.id_guest}
                                                     sx={{
                                                         backgroundColor: '#fff',
-                                                        borderRadius: 2,
-                                                        p: '2px 4px',
+                                                        //borderRadius: 2,
+                                                        p: '2px 14px 0px 2px', 
                                                         display: 'flex',
                                                         alignItems: 'center',
                                                         justifyContent: 'space-between',
                                                         width: '100%',
-                                                        boxShadow: 1,
-                                                        border: '1px solid #eee',
+                                                        ':hover': { backgroundColor: '#f0f0f0' },
+                                                        //boxShadow: 1,
+                                                        //border: '1px solid #eee',
                                                     }}
                                                 >
                                                     {/* Nome + Intolleranze */}
@@ -1070,6 +1094,10 @@ function OnePageEvent() {
                                                     <IconButton
                                                         size="small"
                                                         onClick={() => handleDeleteGuest(g.id_guest)}
+                                                        sx={{
+                                                            color: '#D70040',
+                                                            ':hover': { backgroundColor: '#f0f0f0' },
+                                                        }}
                                                     >
                                                         <Delete fontSize="small" />
                                                     </IconButton>
@@ -1083,12 +1111,10 @@ function OnePageEvent() {
                                 <Box
                                     sx={{
                                         backgroundColor: '#fff',
-                                        borderRadius: 4,
+                                        //borderRadius: 4,
                                         mb: 2,
                                         mr: 1,
                                         p: 1,
-                                        boxShadow: 2,
-                                        border: '2px solid #eee', 
                                     }}
                                 >
                                     <Typography variant="subtitle1" fontWeight="bold" mb={1}>
@@ -1100,14 +1126,15 @@ function OnePageEvent() {
                                                 key={g.id_guest}
                                                 sx={{
                                                     backgroundColor: '#fff',
-                                                    borderRadius: 2,
-                                                    p: '2px 4px',
+                                                    //borderRadius: 2,
+                                                    p: '2px 14px 0px 2px',
                                                     display: 'flex',
                                                     alignItems: 'center',
                                                     justifyContent: 'space-between',
                                                     width: '100%',
-                                                    boxShadow: 1,
-                                                    border: '1px solid #eee',
+                                                    ':hover': { backgroundColor: '#f0f0f0' },
+                                                    //boxShadow: 1,
+                                                    //border: '1px solid #eee',
                                                 }}
                                             >
                                                 {/* Nome + Intolleranze */}
@@ -1119,7 +1146,7 @@ function OnePageEvent() {
                                                         {g.guest_name}
                                                     </Typography>
                                                     {(g.intolerances || []).map((dbKey) => (
-                                                        <Tooltip key={dbKey} title={dbKey}>
+                                                        <Tooltip key={dbKey} title={mapIntolerance(dbKey)}>
                                                             <img
                                                                 src={`/icons/${dbKey}.png`}
                                                                 alt={dbKey}
@@ -1133,6 +1160,10 @@ function OnePageEvent() {
                                                 <IconButton
                                                     size="small"
                                                     onClick={() => handleDeleteGuest(g.id_guest)}
+                                                    sx={{
+                                                        color: '#D70040',
+                                                        ':hover': { backgroundColor: '#f0f0f0' },
+                                                    }}
                                                 >
                                                     <Delete fontSize="small" />
                                                 </IconButton>
@@ -1156,8 +1187,8 @@ function OnePageEvent() {
                         <Grid item xs={12} md={8}>
                             <Box
                                 sx={{
-                                    backgroundColor: '#788c3c',
-                                    color: 'white',
+                                    backgroundColor: 'white',
+                                    color: '#788c3c',
                                     p: 2,
                                     borderTopLeftRadius: 6,
                                     borderTopRightRadius: 6,
@@ -1171,22 +1202,35 @@ function OnePageEvent() {
                                                 <Switch
                                                     checked={currentPlan === 'B'}
                                                     onChange={handlePlanSwitch}
-                                                    color="default"
+                                                    sx={{
+                                                        '& .MuiSwitch-thumb': {
+                                                            color: '#788c3c',
+                                                        },
+                                                        '&.Mui-checked .MuiSwitch-thumb': {
+                                                            color: '#788c3c',
+                                                        },
+                                                        '& .MuiSwitch-track': {
+                                                            backgroundColor: '#d3d3d3', // grigio chiaro
+                                                        },
+                                                        '&.Mui-checked .MuiSwitch-track': {
+                                                            backgroundColor: '#d3d3d3', // mantenere lo stesso colore anche quando è attivo
+                                                        },
+                                                    }}
                                                 />
                                             }
                                             label="Piano A/B"
-                                            sx={{ color: 'white' }}
+                                        sx={{ color: '#788c3c' }}
                                         />
 
                                         <Tooltip title="Scarica Excel Tavoli">
-                                            <IconButton sx={{ color: 'white' }} onClick={downloadTablesExcel}>
+                                        <IconButton sx={{ color: '#788c3c' }} onClick={downloadTablesExcel}>
                                                 <GetAppIcon fontSize="small" />
                                             </IconButton>
                                         </Tooltip>
 
                                         <Tooltip title="Scarica PDF Mappa">
                                             <IconButton
-                                                sx={{ color: 'white' }}
+                                            sx={{ color: '#788c3c' }}
                                                 onClick={downloadMapPDF}
                                                 disabled={isGeneratingPDF}
                                             >
@@ -1195,7 +1239,7 @@ function OnePageEvent() {
                                         </Tooltip>
 
                                         <Button
-                                            size="small"
+                                            size="medium"
                                             startIcon={<AddCircleOutline />}
                                             onClick={handleOpenAddTableDialog}
                                             sx={{
@@ -1209,19 +1253,8 @@ function OnePageEvent() {
                                     </Box>
                                 </Box>
                             </Box>
-
-                            <Box
-                                sx={{
-                                    backgroundColor: '#fff',
-                                    p: 2,
-                                    borderBottomLeftRadius: 6,
-                                    borderBottomRightRadius: 6,
-                                    boxShadow: 1,
-                                }}
-                            >
-                                <Box ref={mapRef}>
-                                    <MapDropArea />
-                                </Box>
+                            <Box ref={mapRef}>
+                                <MapDropArea />
                             </Box>
                         </Grid>
                     </Grid>
@@ -1404,22 +1437,19 @@ function OnePageEvent() {
                 fullWidth
                 maxWidth="md"
             >
-                <DialogTitle sx={{ m: 0, p: 3 }}>
-                    {/* Eventuale titolo del dialog */}
-                    <IconButton
+                <DialogContent>
+                <IconButton
                         aria-label="close"
                         onClick={closeTableCard}
                         sx={{
                             position: 'absolute',
-                            right: 8,
-                            top: 8,
+                            right: 1,
+                            top: 1,
                             color: (theme) => theme.palette.grey[500],
                         }}
                     >
                         <CloseIcon />
                     </IconButton>
-                </DialogTitle>
-                <DialogContent dividers>
                     {selectedTable && (
                         <TableCard
                             table={selectedTable}
