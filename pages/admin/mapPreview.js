@@ -455,12 +455,9 @@ function MapPreview() {
 
     return (
         <DndProvider backend={dndBackend}>
-            <Background />
-            <Overlay />
             <Container maxWidth="xl">
-                <ContentOverlay>
                     <Box
-                        sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}
+                        sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, paddingTop: 2 }}
                     >
                         <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#788c3c' }}>
                             {eventName || 'NOME EVENTO'}
@@ -528,7 +525,6 @@ function MapPreview() {
                             Torna Indietro
                         </Button>
                     </Box>
-                </ContentOverlay>
             </Container>
 
             <Dialog
@@ -616,8 +612,8 @@ function FixedMapTable({
             >
                 <div
                     style={{
-                        width: containerSizeWidth,
-                        height: containerSizeHeight,
+                        width: `${containerSizeWidth}px`,
+                        height: `${containerSizeHeight}px`,
                         //backgroundColor: '#fff',
                         border: '1px solid #ccc',
                         borderRadius: '8px',
@@ -629,9 +625,10 @@ function FixedMapTable({
                     <div
                         style={{
                             display: 'flex',
-                            justifyContent: 'flex-start',
+                            justifyContent: 'space-between',
                             alignItems: 'center',
                             padding: '0px 6px',
+                            height: '24px',
                             zIndex: 999,
                             position: 'relative',
                         }}
@@ -657,16 +654,15 @@ function FixedMapTable({
                         onClick={onClickTable}
                         style={{
                             position: 'absolute',
-                            top: tableInfo.table_type === 'round' ? 10 : 16,
+                            top: tableInfo?.table_type === 'round' ? 0 : 16,
                             left: 0,
                             width: '100%',
                             height: `calc(100% - 32px)`,
-                            transform: `rotate(${rotation}deg)`,
+                            transform: `rotate(${mapTable.rotation}deg)`,
                             transformOrigin: 'center center',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            cursor: 'pointer',
                         }}
                     >
                         <MiniTablePreview
@@ -674,6 +670,9 @@ function FixedMapTable({
                             assignedGuests={assignedGuests}
                             getGuestsByTableAndOrder={getGuestsByTableAndOrder}
                             globalIndexesMap={globalIndexesMap}
+                            containerSizeWidth={containerSizeWidth - 10}
+                            containerSizeHeight={containerSizeHeight - 8}
+                            rotation={mapTable.rotation}
                         />
                     </div>
                 </div>
@@ -690,6 +689,9 @@ function MiniTablePreview({
     assignedGuests,
     getGuestsByTableAndOrder,
     globalIndexesMap,
+    containerSizeWidth,
+    containerSizeHeight,
+    rotation,
 }) {
     if (!table) return null;
     if (table.table_type === 'round') {
@@ -698,6 +700,8 @@ function MiniTablePreview({
                 table={table}
                 getGuestsByTableAndOrder={getGuestsByTableAndOrder}
                 globalIndexesMap={globalIndexesMap}
+                containerSizeWidth={containerSizeWidth}
+                containerSizeHeight={containerSizeHeight + 16}
             />
         );
     } else {
@@ -706,6 +710,9 @@ function MiniTablePreview({
                 table={table}
                 getGuestsByTableAndOrder={getGuestsByTableAndOrder}
                 globalIndexesMap={globalIndexesMap}
+                containerSizeWidth={containerSizeWidth}
+                containerSizeHeight={containerSizeHeight}
+                rotation={rotation}
             />
         );
     }
@@ -716,6 +723,9 @@ function MiniRectPreview({
     table,
     getGuestsByTableAndOrder,
     globalIndexesMap,
+    containerSizeWidth,
+    containerSizeHeight,
+    rotation,
 }) {
     const topGuests = getGuestsByTableAndOrder(table.id_table, 1);
     const leftGuests = getGuestsByTableAndOrder(table.id_table, 2);
@@ -724,8 +734,13 @@ function MiniRectPreview({
 
     const TABLE_WIDTH = 60;
     const TABLE_HEIGHT = 80;
-    const centerX = (80 - TABLE_WIDTH) / 2;  // calcolato un contenitore base 80x100
-    const centerY = (100 - TABLE_HEIGHT) / 2;
+    const centerX = (containerSizeWidth - TABLE_WIDTH) / 2;
+    const centerY = (containerSizeHeight - TABLE_HEIGHT) / 2;
+
+    let topOffset = centerY - 25;
+    let bottomOffset = centerY + TABLE_HEIGHT + 5;
+    let horizontalGap = '4px';
+    let verticalGap = '4px';
 
     const isS = table.table_type === 's_shaped';
 
@@ -739,14 +754,27 @@ function MiniRectPreview({
     const bottomShort = truncateList(bottomGuests);
     const rightShort = truncateList(rightGuests);
 
+    if (rotation === 90) {
+        topOffset = centerY - 60;
+        bottomOffset = centerY + TABLE_HEIGHT;
+        horizontalGap = '8px';
+        verticalGap = '1px';
+    }
+
     return (
-        <div style={{ position: 'relative', width: 80, height: 100 }}>
+        <div style={{
+            position: 'relative',
+            width: containerSizeWidth,
+            height: containerSizeHeight,
+        }}>
             {/* Tavolo */}
             <div
                 style={{
                     position: 'absolute',
                     top: centerY,
                     left: centerX,
+                    transform: `rotate(${rotation}deg)`,
+                    transformOrigin: 'center center',
                 }}
             >
                 {isS ? (
@@ -757,17 +785,21 @@ function MiniRectPreview({
                             width: TABLE_WIDTH,
                             height: TABLE_HEIGHT,
                             objectFit: 'fill',
+                            transform: `rotate(${rotation}deg)`,
+                            transformOrigin: 'center center',
                         }}
                     />
                 ) : (
-                    <div
-                        style={{
-                            width: TABLE_WIDTH,
-                            height: TABLE_HEIGHT,
-                            backgroundColor: '#ddd',
-                            borderRadius: '4px',
-                        }}
-                    />
+                        <svg
+                            width={TABLE_WIDTH}
+                            height={TABLE_HEIGHT}
+                            style={{
+                                backgroundColor: '#ddd',
+                                borderRadius: '4px',
+                                transform: `rotate(${rotation}deg)`,
+                                transformOrigin: 'center center',
+                            }}
+                        />
                 )}
             </div>
 
@@ -775,44 +807,66 @@ function MiniRectPreview({
             <div
                 style={{
                     position: 'absolute',
-                    top: centerY - 25,
+                    top: topOffset,
                     left: '50%',
                     transform: 'translateX(-50%)',
                     display: 'flex',
-                    gap: '4px',
+                    gap: horizontalGap,
                 }}
             >
-                {topShort.map((g, idx) => renderRectSeat(g, idx, globalIndexesMap, false))}
+                {topShort.map((g, idx) => renderRectSeat(g, idx, globalIndexesMap, rotation))}
             </div>
 
             {/* BOTTOM seats */}
             <div
                 style={{
                     position: 'absolute',
-                    top: centerY + TABLE_HEIGHT + 5,
+                    top: bottomOffset,
                     left: '50%',
                     transform: 'translateX(-50%)',
                     display: 'flex',
-                    gap: '4px',
+                    gap: horizontalGap,
                 }}
             >
-                {bottomShort.map((g, idx) => renderRectSeat(g, idx, globalIndexesMap, false))}
+                {bottomShort.map((g, idx) => renderRectSeat(g, idx, globalIndexesMap, rotation))}
             </div>
 
             {/* LEFT seats */}
-            <div
-                style={{
-                    position: 'absolute',
-                    left: centerX - 60,
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '4px',
-                }}
-            >
-                {leftShort.map((g, idx) => renderRectSeat(g, idx, globalIndexesMap, false))}
-            </div>
+            {
+                rotation === 90 ? (
+                    <div
+                        style={{
+                            position: 'absolute',
+                            left: centerX - 20,
+                            top: '50%',
+                            transform: 'translateY(-50%)',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: verticalGap,
+                        }}
+                    >
+                        {leftShort.map((g, idx) =>
+                            renderRectSeat(g, idx, globalIndexesMap, rotation)
+                        )}
+                    </div>
+                ) : (
+                    <div
+                        style={{
+                            position: 'absolute',
+                            left: centerX - 60,
+                            top: '50%',
+                            transform: 'translateY(-50%)',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: verticalGap,
+                        }}
+                    >
+                        {leftShort.map((g, idx) =>
+                            renderRectSeat(g, idx, globalIndexesMap, rotation)
+                        )}
+                    </div>
+                )
+            }
 
             {/* RIGHT seats */}
             <div
@@ -823,17 +877,17 @@ function MiniRectPreview({
                     transform: 'translateY(-50%)',
                     display: 'flex',
                     flexDirection: 'column',
-                    gap: '4px',
+                    gap: verticalGap,
                 }}
             >
-                {rightShort.map((g, idx) => renderRectSeat(g, idx, globalIndexesMap, false))}
+                {rightShort.map((g, idx) => renderRectSeat(g, idx, globalIndexesMap, rotation))}
             </div>
         </div>
     );
 }
 
 // Stessa resa poltroncine orizzontali, semplificata
-function renderRectSeat(g, idx, globalIndexesMap) {
+function renderRectSeat(g, idx, globalIndexesMap, rotation) {
     const truncate = (str, n = 5) => {
         if (!str) return '';
         return str.length > n ? str.substring(0, n) + '..' : str;
@@ -852,26 +906,67 @@ function renderRectSeat(g, idx, globalIndexesMap) {
             </>
         );
 
-    return (
-        <div
-            key={g.id_guest + '-' + idx}
-            style={{
-                width: '60px',
-                height: '20px',
-                border: '1px solid #999',
-                borderRadius: '4px',
-                backgroundColor: '#fff',
-                fontSize: '10px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                overflow: 'hidden',
-            }}
-            title={g.guest_name}
-        >
-            {content}
-        </div>
-    );
+    if (rotation === 90) {
+        return (
+            <div
+                key={g.id_guest}
+                style={{
+                    width: '20px',
+                    height: '60px',
+                    overflow: 'hidden',
+                    position: 'relative',
+                    border: '1px solid #999',
+                    borderRadius: '4px',
+                    backgroundColor: '#fff',
+                    boxSizing: 'border-box',
+                }}
+                title={g.guest_name}
+            >
+                <div
+                    style={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -60%) rotate(270deg)',
+                        transformOrigin: 'center',
+                        fontSize: '10px',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        display: 'inline',
+                    }}
+                >
+                    {content}
+                </div>
+            </div>
+        );
+    } else {
+        return (
+            <div
+                key={g.id_guest}
+                style={{
+                    width: '60px',
+                    height: '20px',
+                    border: '1px solid #999',
+                    borderRadius: '4px',
+                    backgroundColor: '#fff',
+                    fontSize: '10px',
+                    textAlign: 'center',
+                    overflow: 'hidden',
+                    whiteSpace: 'nowrap',
+                    textOverflow: 'ellipsis',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxSizing: 'border-box',
+                    display: 'inline',
+                }}
+                title={g.guest_name}
+            >
+                {content}
+            </div>
+        );
+    }
 }
 
 /* ----------------- Mini Round style (ripreso da StaticMapTable) --------------- */
