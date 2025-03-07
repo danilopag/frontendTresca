@@ -1299,19 +1299,21 @@ function Evento() {
 
                         {/* Intolleranze */}
                         <FormControl fullWidth margin="normal">
-                            <InputLabel id="intol-label" sx={{ top: -4 }}>
+                            <InputLabel id="intol-label">
                                 Intolleranze
                             </InputLabel>
                             <Select
                                 labelId="intol-label"
+                                label="Intolleranze"
                                 multiple
                                 open={intoleranceSelectOpen}
                                 onOpen={() => setIntoleranceSelectOpen(true)}
                                 onClose={() => setIntoleranceSelectOpen(false)}
-                                value={guestIntolerances}
+                                value={guestIntolerances || ''}
                                 onChange={handleIntoleranceChange}
                                 renderValue={(selected) => selected.join(', ')}
                             >
+                                <MenuItem value="">Nessuna intolleranza</MenuItem>
                                 {intoleranceLabels.map((label) => (
                                     <MenuItem key={label} value={label}>
                                         {label}
