@@ -89,9 +89,9 @@ const MainPage = () => {
       if (res.data.user.is_admin) {
         router.push('/admin/dashboard');
       } else if (res.data.lockEdit) {
-        router.push('/onePageEventReadOnly');
+        router.push('/eventoLock');
       } else {
-        router.push('/onePageEvent');
+        router.push('/evento');
       }
     } catch (error) {
       showAlert('Errore', error.response?.data?.message || 'Errore durante il login');
@@ -107,7 +107,7 @@ const MainPage = () => {
           <CardContent>
             <Box textAlign="center" mb={2}>
               <img
-                src="/logotenutatresca.jpeg"
+                src="/logoTrescaPng.PNG"
                 alt="Logo Tresca"
                 style={{
                   width: '100%',

@@ -71,7 +71,7 @@ const ContentOverlay = styled('div')(({ theme }) => ({
     minHeight: '80vh',
 }));
 
-function OnePageEventReadOnly() {
+function EventoLock() {
     const theme = useTheme();
     const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
     const dndBackend = isMobile ? TouchBackend : HTML5Backend;
@@ -511,13 +511,9 @@ function OnePageEventReadOnly() {
     // -------------------------------------------------------------
     return (
         <DndProvider backend={dndBackend}>
-            <Background />
-            <Overlay />
-
             <Container maxWidth="xl">
-                <ContentOverlay>
                     {/* Titolo / Data */}
-                    <Box textAlign="center" mb={3}>
+                    <Box textAlign="center" mb={3} paddingTop={2}>
                         <Typography variant="h3" sx={{ fontWeight: 'bold', color: '#788c3c' }}>
                             {eventName || 'NOME EVENTO'}
                         </Typography>
@@ -531,8 +527,8 @@ function OnePageEventReadOnly() {
                         <Grid item xs={12} md={4}>
                             <Box
                                 sx={{
-                                    backgroundColor: '#788c3c',
-                                    color: 'white',
+                                    backgroundColor: '#fff',
+                                    color: '#788c3c',
                                     p: 2,
                                     borderTopLeftRadius: 6,
                                     borderTopRightRadius: 6,
@@ -553,12 +549,12 @@ function OnePageEventReadOnly() {
                                     boxShadow: 1,
                                 }}
                             >
-                                <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
+                            <Box display="flex" justifyContent="space-between" alignItems="center" mb={1} borderBottom={1} borderColor="#ccc" paddingBlockEnd={1}>
                                     <Typography variant="body1" fontWeight="bold">
                                         Organizza in gruppi
                                     </Typography>
                                     {/* Pulsante "Crea Gruppo" RIMOSSO */}
-                                </Box>
+                            </Box>
 
                                 <Box sx={{ maxHeight: isSmallScreen ? 300 : 600, overflowY: 'auto' }}>
                                     {/* Categorie in sola lettura */}
@@ -566,11 +562,11 @@ function OnePageEventReadOnly() {
                                         <Box
                                             key={cat.id_category}
                                             sx={{
-                                                backgroundColor: '#f5f5f5',
-                                                borderRadius: 2,
+                                                backgroundColor: '#fff',
                                                 mb: 2,
+                                                mr: 1,
                                                 p: 1,
-                                                boxShadow: 1,
+                                                marginBottom: 1,
                                             }}
                                         >
                                             <Box
@@ -578,26 +574,30 @@ function OnePageEventReadOnly() {
                                                 justifyContent="space-between"
                                                 alignItems="center"
                                                 mb={1}
+                                                borderBottom={1} borderColor="#ccc"
                                             >
-                                                <Typography variant="subtitle1" fontWeight="bold">
+                                                <Typography variant="subtitle1" fontWeight="bold" color='#788c3c'>
                                                     {cat.name_categories}
                                                 </Typography>
                                                 {/* Icone modifica/elimina gruppo RIMOSSE */}
                                             </Box>
 
                                             {/* Invitati di questo gruppo (solo lettura) */}
-                                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                                 {getGuestsByCategory(cat.id_category).map((g) => (
                                                     <Box
                                                         key={g.id_guest}
                                                         sx={{
-                                                            backgroundColor: '#eee',
-                                                            borderRadius: 2,
-                                                            p: '2px 4px',
+                                                            backgroundColor: '#fff',
+                                                            p: '2px 14px 0px 2px',
                                                             display: 'flex',
                                                             alignItems: 'center',
+                                                            justifyContent: 'space-between',
+                                                            width: '100%',
+                                                            ':hover': { backgroundColor: '#f0f0f0' },
                                                         }}
                                                     >
+                                                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
                                                         <Typography
                                                             variant="caption"
                                                             sx={{ fontWeight: 'bold', mr: 0.5 }}
@@ -609,11 +609,12 @@ function OnePageEventReadOnly() {
                                                                 <img
                                                                     src={`/icons/${dbKey}.png`}
                                                                     alt={dbKey}
-                                                                    style={{ width: 14, height: 14, marginLeft: 2 }}
+                                                                    style={{ width: 20, height: 20, marginLeft: 2 }}
                                                                 />
                                                             </Tooltip>
                                                         ))}
                                                         {/* Icona delete invitato RIMOSSA */}
+                                                        </Box>
                                                     </Box>
                                                 ))}
                                             </Box>
@@ -623,26 +624,28 @@ function OnePageEventReadOnly() {
                                     {/* Invitati senza gruppo */}
                                     <Box
                                         sx={{
-                                            backgroundColor: '#eee',
-                                            borderRadius: 2,
+                                            backgroundColor: '#fff',
+                                            //borderRadius: 4,
+                                            mb: 2,
+                                            mr: 1,
                                             p: 1,
-                                            boxShadow: 1,
                                         }}
                                     >
                                         <Typography variant="subtitle1" fontWeight="bold" mb={1}>
                                             Senza Gruppo
                                         </Typography>
-                                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                             {getGuestsWithoutCategory().map((g) => (
                                                 <Box
                                                     key={g.id_guest}
                                                     sx={{
                                                         backgroundColor: '#fff',
-                                                        borderRadius: 2,
-                                                        p: '2px 4px',
+                                                        p: '2px 14px 0px 2px',
                                                         display: 'flex',
                                                         alignItems: 'center',
-                                                        boxShadow: 1,
+                                                        justifyContent: 'space-between',
+                                                        width: '100%',
+                                                        ':hover': { backgroundColor: '#f0f0f0' },
                                                     }}
                                                 >
                                                     <Typography
@@ -656,7 +659,7 @@ function OnePageEventReadOnly() {
                                                             <img
                                                                 src={`/icons/${dbKey}.png`}
                                                                 alt={dbKey}
-                                                                style={{ width: 14, height: 14, marginLeft: 2 }}
+                                                                style={{ width: 20, height: 20, marginLeft: 2 }}
                                                             />
                                                         </Tooltip>
                                                     ))}
@@ -680,8 +683,8 @@ function OnePageEventReadOnly() {
                         <Grid item xs={12} md={8}>
                             <Box
                                 sx={{
-                                    backgroundColor: '#788c3c',
-                                    color: 'white',
+                                    backgroundColor: 'white',
+                                    color: '#788c3c',
                                     p: 2,
                                     borderTopLeftRadius: 6,
                                     borderTopRightRadius: 6,
@@ -696,17 +699,30 @@ function OnePageEventReadOnly() {
                                                 <Switch
                                                     checked={currentPlan === 'B'}
                                                     onChange={handlePlanSwitch}
-                                                    color="default"
+                                                    sx={{
+                                                        '& .MuiSwitch-thumb': {
+                                                            color: '#788c3c',
+                                                        },
+                                                        '&.Mui-checked .MuiSwitch-thumb': {
+                                                            color: '#788c3c',
+                                                        },
+                                                        '& .MuiSwitch-track': {
+                                                            backgroundColor: '#d3d3d3', // grigio chiaro
+                                                        },
+                                                        '&.Mui-checked .MuiSwitch-track': {
+                                                            backgroundColor: '#d3d3d3', // mantenere lo stesso colore anche quando è attivo
+                                                        },
+                                                    }}
                                                 />
                                             }
                                             label="Piano A/B"
-                                            sx={{ color: 'white' }}
+                                        sx={{ color: '#788c3c' }}
                                         />
 
                                         {/* Scarica Excel */}
                                         <Tooltip title="Scarica Excel Tavoli">
                                             <IconButton
-                                                sx={{ color: 'white' }}
+                                                sx={{ color: '#788c3c' }}
                                                 onClick={downloadTablesExcel}
                                                 disabled={isGeneratingExcel}
                                             >
@@ -717,7 +733,7 @@ function OnePageEventReadOnly() {
                                         {/* Scarica PDF */}
                                         <Tooltip title="Scarica PDF Mappa">
                                             <IconButton
-                                                sx={{ color: 'white' }}
+                                                sx={{ color: '#788c3c' }}
                                                 onClick={downloadMapPDF}
                                                 disabled={isGeneratingPDF}
                                             >
@@ -729,16 +745,6 @@ function OnePageEventReadOnly() {
                                     </Box>
                                 </Box>
                             </Box>
-
-                            <Box
-                                sx={{
-                                    backgroundColor: '#fff',
-                                    p: 2,
-                                    borderBottomLeftRadius: 6,
-                                    borderBottomRightRadius: 6,
-                                    boxShadow: 1,
-                                }}
-                            >
                                 {/* Contenitore mappa */}
                                 <Box
                                     ref={mapRef}
@@ -768,10 +774,9 @@ function OnePageEventReadOnly() {
                                         );
                                     })}
                                 </Box>
-                            </Box>
                         </Grid>
                     </Grid>
-                </ContentOverlay>
+
             </Container>
 
             {/* ------ ALERT ------ */}
@@ -788,7 +793,7 @@ function OnePageEventReadOnly() {
     );
 }
 
-export default withAuth(OnePageEventReadOnly);
+export default withAuth(EventoLock);
 
 /* ------------------------------------------------------------------
    COMPONENTE PER MOSTRARE TAVOLO (STATICO, NON TRASCINABILE)

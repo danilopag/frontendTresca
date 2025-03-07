@@ -89,7 +89,7 @@ const ContentOverlay = styled('div')(({ theme }) => ({
     minHeight: '80vh',
 }));
 
-function OnePageEvent() {
+function Evento() {
     const theme = useTheme();
     const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
     const dndBackend = isMobile ? TouchBackend : HTML5Backend;
@@ -943,12 +943,12 @@ function OnePageEvent() {
                                 sx={{
                                     backgroundColor: '#fff',
                                     color: '#788c3c',
-                                    //border: 1,
-                                    //borderColor: '#ccc',
                                     p: 2,
                                     borderTopLeftRadius: 6,
                                     borderTopRightRadius: 6,
                                     //boxShadow: 1,
+                                    //border: 1,
+                                    //borderColor: '#ccc',
                                 }}
                             >
                                 <Box display="flex" justifyContent="space-between" alignItems="center">
@@ -998,7 +998,7 @@ function OnePageEvent() {
                                     >
                                         Crea Gruppo
                                     </Button>
-                                </Box>
+                            </Box>
 
                             <Box sx={{ maxHeight: isSmallScreen ? 300 : 600, overflowY: 'auto' }}>
                                 {/* Categorie */}
@@ -1007,12 +1007,12 @@ function OnePageEvent() {
                                         key={cat.id_category}
                                         sx={{
                                             backgroundColor: '#fff',
-                                            //borderRadius: 4,
                                             mb: 2,
                                             mr: 1,
                                             p: 1,
                                             marginBottom: 1,
                                             //boxShadow: 2,
+                                            //borderRadius: 4,
                                             //border: '2px solid #eee', 
                                         }}
                                     >
@@ -1060,13 +1060,13 @@ function OnePageEvent() {
                                                     key={g.id_guest}
                                                     sx={{
                                                         backgroundColor: '#fff',
-                                                        //borderRadius: 2,
                                                         p: '2px 14px 0px 2px', 
                                                         display: 'flex',
                                                         alignItems: 'center',
                                                         justifyContent: 'space-between',
                                                         width: '100%',
                                                         ':hover': { backgroundColor: '#f0f0f0' },
+                                                        //borderRadius: 2,
                                                         //boxShadow: 1,
                                                         //border: '1px solid #eee',
                                                     }}
@@ -1126,13 +1126,13 @@ function OnePageEvent() {
                                                 key={g.id_guest}
                                                 sx={{
                                                     backgroundColor: '#fff',
-                                                    //borderRadius: 2,
                                                     p: '2px 14px 0px 2px',
                                                     display: 'flex',
                                                     alignItems: 'center',
                                                     justifyContent: 'space-between',
                                                     width: '100%',
                                                     ':hover': { backgroundColor: '#f0f0f0' },
+                                                    //borderRadius: 2,
                                                     //boxShadow: 1,
                                                     //border: '1px solid #eee',
                                                 }}
@@ -2058,4 +2058,4 @@ function renderRoundSeat(g, idx, globalIndexesMap, x, y) {
     );
 }
 
-export default withAuth(OnePageEvent);
+export default withAuth(Evento);

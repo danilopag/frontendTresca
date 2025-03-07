@@ -1,12 +1,12 @@
 /*
  * Copyright (c) 2025, Danilo Paglialunga.
  * Tutti i diritti riservati.
+     //baseURL: 'https://backendtresca-production.up.railway.app/api'
  */
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'https://backendtresca-production.up.railway.app/api'
-    //baseURL: 'http://localhost:5000/api'
+    baseURL: 'http://localhost:5000/api'
 });
 
 api.interceptors.request.use(
