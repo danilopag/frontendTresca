@@ -24,31 +24,25 @@ import {
 import { ExpandMore, Close } from '@mui/icons-material';
 import api from '../utils/api';
 
-/**
- * AddSingleGuestRoundDialog:
- * - Permette di selezionare un solo invitato da aggiungere a un tavolo rotondo
- * - Usa `seatIndex` come posizione (table_side_position)
- * - table_order sarà 0 (o quello che usi per i tavoli rotondi)
- */
-function AddSingleGuestRoundDialog({
+function AddMultipleGuestRoundDialog({
     open,
     onClose,
     table,                  // es. { id_table, table_name, ... }
-    seatIndex,             // posizione rotonda (1..12)
+    seatIndex,              // posizione rotonda (1..12)
     currentPlan,
     fetchAssignedGuests,
     fetchUnassignedGuestsCount,
 }) {
     const [allGuests, setAllGuests] = useState([]);
-    const [selectedGuest, setSelectedGuest] = useState(null);
+    const [selectedGuests, setSelectedGuests] = useState([]);
 
     useEffect(() => {
         if (open) {
             fetchAllGuests();
         } else {
-            // pulizia quando chiudo
+            // Pulizia alla chiusura
             setAllGuests([]);
-            setSelectedGuest(null);
+            setSelectedGuests([]);
         }
     }, [open]);
 
@@ -67,51 +61,59 @@ function AddSingleGuestRoundDialog({
         onClose();
     };
 
-    // Selezione singola
+    // Gestione della selezione multipla
     const handleSelect = (id_guest) => {
-        setSelectedGuest((prev) => (prev === id_guest ? null : id_guest));
+        setSelectedGuests((prev) =>
+            prev.includes(id_guest)
+                ? prev.filter((id) => id !== id_guest)
+                : [...prev, id_guest]
+        );
     };
 
     const handleConfirm = async () => {
-        if (!selectedGuest) return;
+        if (selectedGuests.length === 0) return;
+
+        const validGuests = selectedGuests.filter((_, index) => seatIndex + index <= 12);
 
         try {
-            // 1) Rimuovi vecchia assegnazione (se esiste)
-            try {
-                await api.delete(`/table-layouts/round/${selectedGuest}`, {
-                    params: { plan: currentPlan },
-                });
-            } catch (error) {
-                // se non era assegnato, ignoriamo
-            }
+            // Per ogni invitato selezionato, rimuove l'eventuale vecchia assegnazione e ne crea una nuova
+            await Promise.all(
+                validGuests.map(async (id_guest, index) => {
+                    const currentSeat = seatIndex + index;
+                    try {
+                        await api.delete(`/table-layouts/round/${id_guest}`, {
+                            params: { plan: currentPlan },
+                        });
+                    } catch (error) {
+                        // Se l'invitato non era già assegnato, ignoriamo l'errore
+                    }
+                    await api.post('/table-layouts', {
+                        id_guest,
+                        id_table: table.id_table,
+                        table_order: 0, // ad es. 0 per i tavoli rotondi
+                        table_side_position: currentSeat,
+                        plan: currentPlan,
+                    });
+                })
+            );
 
-            // 2) Assegna al tavolo rotondo
-            //    table_order = 0 (o quello che usi per "round")
-            await api.post('/table-layouts', {
-                id_guest: selectedGuest,
-                id_table: table.id_table,
-                table_order: 0, // supponiamo 0 per i rotondi
-                table_side_position: seatIndex,
-                plan: currentPlan,
-            });
-
-            // 3) Aggiorna
+            // Aggiorna i dati
             await fetchAllGuests();
             await fetchAssignedGuests();
             await fetchUnassignedGuestsCount();
 
-            // 4) Chiudi
+            // Chiude il dialog
             handleClose();
         } catch (error) {
-            console.error('Errore handleConfirm AddSingleGuestRoundDialog:', error);
+            console.error('Errore handleConfirm AddMultipleGuestRoundDialog:', error);
         }
     };
 
-    // Raggruppa “non assegnati” / “assegnati” (facoltativo)
+    // Raggruppa invitati non assegnati e assegnati
     const unassigned = allGuests.filter((g) => !g.id_table);
     const assigned = allGuests.filter((g) => g.id_table);
 
-    // Mappa tavoli -> invitati assegnati
+    // Mappa i tavoli ai rispettivi invitati assegnati
     const assignedMap = {};
     assigned.forEach((g) => {
         const groupKey = `Tavolo ${g.table_name || g.id_table}`;
@@ -124,7 +126,7 @@ function AddSingleGuestRoundDialog({
     return (
         <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
             <DialogTitle>
-                Aggiungi Invitato a {table?.table_name || '(rotondo)'}
+                Aggiungi Invitati a {table?.table_name || '(rotondo)'}
                 <IconButton
                     onClick={handleClose}
                     sx={{ position: 'absolute', right: 8, top: 8 }}
@@ -135,14 +137,16 @@ function AddSingleGuestRoundDialog({
 
             <DialogContent dividers>
                 <Typography variant="subtitle2" gutterBottom>
-                    Seleziona l’invitato da aggiungere
+                    Seleziona uno o più invitati
                 </Typography>
 
-                {/* Non assegnati */}
-                <ListSubheader disableSticky sx={{ color: 'black' }}>Non Assegnati</ListSubheader>
+                {/* Invitati non assegnati */}
+                <ListSubheader disableSticky sx={{ color: 'black' }}>
+                    Non Assegnati
+                </ListSubheader>
                 <List dense>
                     {unassigned.map((guest) => {
-                        const isSelected = selectedGuest === guest.id_guest;
+                        const isSelected = selectedGuests.includes(guest.id_guest);
                         return (
                             <ListItem
                                 key={guest.id_guest}
@@ -166,7 +170,7 @@ function AddSingleGuestRoundDialog({
                     })}
                 </List>
 
-                {/* Assegnati raggruppati per tavolo */}
+                {/* Invitati assegnati raggruppati per tavolo */}
                 {Object.keys(assignedMap).map((groupKey) => (
                     <Accordion key={groupKey}>
                         <AccordionSummary expandIcon={<ExpandMore />}>
@@ -175,10 +179,14 @@ function AddSingleGuestRoundDialog({
                         <AccordionDetails>
                             <List dense>
                                 {assignedMap[groupKey]
-                                    .slice() // crea una copia per non modificare l'array originale
-                                    .sort((a, b) => Number(a.table_side_position || 0) - Number(b.table_side_position || 0))
+                                    .slice()
+                                    .sort(
+                                        (a, b) =>
+                                            Number(a.table_side_position || 0) -
+                                            Number(b.table_side_position || 0)
+                                    )
                                     .map((guest) => {
-                                        const isSelected = selectedGuest === guest.id_guest;
+                                        const isSelected = selectedGuests.includes(guest.id_guest);
                                         return (
                                             <ListItem
                                                 key={guest.id_guest}
@@ -187,7 +195,7 @@ function AddSingleGuestRoundDialog({
                                                 selected={isSelected}
                                             >
                                                 <ListItemText
-                                                    primary={`${guest.guest_name}`}
+                                                    primary={guest.guest_name}
                                                     secondary={`Posizione: ${guest.table_side_position || '-'}`}
                                                 />
                                                 <ListItemSecondaryAction>
@@ -211,7 +219,7 @@ function AddSingleGuestRoundDialog({
                 <Button
                     onClick={handleConfirm}
                     variant="contained"
-                    disabled={!selectedGuest}
+                    disabled={selectedGuests.length === 0}
                 >
                     Aggiungi
                 </Button>
@@ -220,4 +228,4 @@ function AddSingleGuestRoundDialog({
     );
 }
 
-export default AddSingleGuestRoundDialog;
+export default AddMultipleGuestRoundDialog;

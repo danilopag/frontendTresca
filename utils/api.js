@@ -7,7 +7,8 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL:'https://gestionale.tresca.it/api'
+    //baseURL:'https://gestionale.tresca.it/api'
+    baseURL: 'http://localhost:5000/api'
 });
 
 api.interceptors.request.use(

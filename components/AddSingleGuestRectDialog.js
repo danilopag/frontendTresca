@@ -38,7 +38,7 @@ function AddSingleGuestRectDialog({
     currentPlan,
 }) {
     const [allGuests, setAllGuests] = useState([]);
-    const [selectedGuest, setSelectedGuest] = useState(null);
+    const [selectedGuests, setSelectedGuests] = useState([]);
 
     useEffect(() => {
         if (open) {
@@ -46,7 +46,7 @@ function AddSingleGuestRectDialog({
         } else {
             // reset quando si chiude
             setAllGuests([]);
-            setSelectedGuest(null);
+            setSelectedGuest([]);
         }
     }, [open]);
 
@@ -66,14 +66,18 @@ function AddSingleGuestRectDialog({
     };
 
     const handleGuestSelect = (id_guest) => {
-        setSelectedGuest((prev) => (prev === id_guest ? null : id_guest));
+        setSelectedGuests((prev) =>
+            prev.includes(id_guest)
+                ? prev.filter((id) => id !== id_guest)
+                : [...prev, id_guest]
+        );
     };
 
     const handleConfirm = () => {
-        if (!selectedGuest) return;
+        if (selectedGuests.length === 0) return;
         // Chiameremo onConfirm(selectedGuest)
         // Sarà il parent a fare la POST su /table-layouts con sideOrder / side_position
-        onConfirm(selectedGuest);
+        onConfirm(selectedGuests);
     };
 
     // Suddividiamo i guests in non assegnati / assegnati
@@ -91,7 +95,7 @@ function AddSingleGuestRectDialog({
     return (
         <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
             <DialogTitle>
-                Aggiungi Invitato a {table.table_name}
+                Aggiungi Invitati a {table.table_name}
                 <IconButton
                     onClick={handleClose}
                     sx={{ position: 'absolute', right: 8, top: 8 }}
@@ -101,14 +105,14 @@ function AddSingleGuestRectDialog({
             </DialogTitle>
             <DialogContent dividers>
                 <Typography variant="subtitle2" gutterBottom>
-                    Seleziona un invitato
+                    Seleziona uno o più invitati
                 </Typography>
 
                 {/* Sezione Non Assegnati */}
                 <ListSubheader disableSticky sx={{ color: 'black' }}>Non Assegnati</ListSubheader>
                 <List dense>
                     {unassigned.map((guest) => {
-                        const isSelected = selectedGuest === guest.id_guest;
+                        const isSelected = selectedGuests.includes(guest.id_guest);
                         return (
                             <ListItem
                                 key={guest.id_guest}
@@ -144,7 +148,7 @@ function AddSingleGuestRectDialog({
                                     .slice() // copia l'array per non modificarlo direttamente
                                     .sort((a, b) => Number(a.table_side_position || 0) - Number(b.table_side_position || 0))
                                     .map((guest) => {
-                                        const isSelected = selectedGuest === guest.id_guest;
+                                        const isSelected = selectedGuests.includes(guest.id_guest);
                                         return (
                                             <ListItem
                                                 key={guest.id_guest}
@@ -177,7 +181,7 @@ function AddSingleGuestRectDialog({
                 <Button
                     onClick={handleConfirm}
                     variant="contained"
-                    disabled={!selectedGuest}
+                    disabled={selectedGuests.length === 0}
                 >
                     Aggiungi
                 </Button>

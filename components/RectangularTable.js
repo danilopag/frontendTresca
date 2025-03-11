@@ -61,15 +61,8 @@ function RectangularTable({
         setOpenDialog(true);
     };
 
-    const handleSeatFilled = async (guestId) => {
+    const handleSeatFilled = async (guestIds) => {
         try {
-            // Rimuovo la vecchia assegnazione se esiste
-            try {
-                await api.delete(`/table-layouts/rect/${guestId}`, { params: { plan: currentPlan } });
-            } catch (error) {
-                // se non c'era, ignora
-            }
-
             let sideOrder = 1;
             let seatsArray = [];
 
@@ -87,16 +80,31 @@ function RectangularTable({
                 seatsArray = rightSeats;
             }
 
+            // Conta quanti posti sono già occupati su questo lato
             const existingFilled = seatsArray.filter((s) => !s.isEmpty).length;
-            const table_side_position = existingFilled + 1;
 
-            await api.post('/table-layouts', {
-                id_guest: guestId,
-                id_table: table.id_table,
-                table_order: sideOrder,
-                table_side_position,
-                plan: currentPlan,
-            });
+            await Promise.all(
+                guestIds.map(async (guestId, index) => {
+                    // Rimuove eventuali assegnazioni preesistenti
+                    try {
+                        await api.delete(`/table-layouts/rect/${guestId}`, {
+                            params: { plan: currentPlan },
+                        });
+                    } catch (error) {
+                        // Ignora l'errore se l'invitato non era già assegnato
+                    }
+                    // Calcola la posizione per il nuovo invitato:
+                    // la prima posizione disponibile sarà existingFilled + 1, la successiva +2, ecc.
+                    const table_side_position = existingFilled + index + 1;
+                    await api.post('/table-layouts', {
+                        id_guest: guestId,
+                        id_table: table.id_table,
+                        table_order: sideOrder,
+                        table_side_position,
+                        plan: currentPlan,
+                    });
+                })
+            );
 
             await fetchAssignedGuests();
             await fetchUnassignedGuestsCount();
@@ -105,6 +113,7 @@ function RectangularTable({
         }
         setOpenDialog(false);
     };
+
 
     // Calcoliamo la minHeight / height in base a quanti seat ho su left/right
     const maxLeftRightSeats = Math.max(leftSeats.length, rightSeats.length);
