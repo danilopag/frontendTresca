@@ -1,8 +1,3 @@
-// components/withAuth.js
-/*
- * Copyright (c) 2025, Danilo Paglialunga.
- * Tutti i diritti riservati.
- */
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 
@@ -18,7 +13,7 @@ const isTokenValid = (token) => {
 
 const withAuth = (WrappedComponent) => {
     const Wrapper = (props) => {
-        const [loading, setLoading] = useState(true); // Stato di caricamento
+        const [loading, setLoading] = useState(true);
         const router = useRouter();
 
         useEffect(() => {
@@ -26,7 +21,7 @@ const withAuth = (WrappedComponent) => {
                 const token = localStorage.getItem('token');
 
                 if (!token) {
-                    // Se non c'è token, reindirizza a /login
+                    // Se non c'è token, reindirizza a /
                     router.push('/');
                     setLoading(false);
                     return;
@@ -34,20 +29,23 @@ const withAuth = (WrappedComponent) => {
 
                 const payload = isTokenValid(token);
                 if (!payload) {
-                    // Se il token non è valido, reindirizza a /login
+                    // Se il token non è valido, reindirizza a /
                     router.push('/');
                     setLoading(false);
                     return;
                 }
 
                 const currentPath = router.pathname;
-                const allowedRoutes = payload.allowed_routes || []; // Autorizzazioni definite nel token
+                const allowedRoutes = payload.allowed_routes || [];
+
                 if (payload.is_admin === 1) {
-                    // Se admin, reindirizza a /admin/dashboard
-                    router.push('/admin/dashboard');
+                    // Se l'utente è admin, consentiamo tutte le route che iniziano con "/admin/"
+                    if (!currentPath.startsWith('/admin/')) {
+                        router.push('/admin/dashboard');
+                    }
                     setLoading(false);
                 } else if (!allowedRoutes.includes(currentPath)) {
-                    // Se l'utente non ha accesso alla route attuale, reindirizza a /onePageEvent
+                    // Se l'utente non ha accesso alla route attuale, reindirizza alla prima autorizzata
                     router.push(allowedRoutes[0]);
                     setLoading(false);
                 } else {
