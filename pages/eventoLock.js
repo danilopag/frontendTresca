@@ -29,6 +29,7 @@ import ExcelJS from 'exceljs';
 import withAuth from '../components/withAuth';
 import Chat from '../components/Chat';
 import AlertModal from '../components/AlertModal';
+import HeaderButtons from '../components/HeaderButtons';
 
 import api from '../utils/api';
 
@@ -512,14 +513,33 @@ function EventoLock() {
     return (
         <DndProvider backend={dndBackend}>
             <Container maxWidth="xl">
-                    {/* Titolo / Data */}
-                    <Box textAlign="center" mb={3} paddingTop={2}>
-                        <Typography variant="h3" sx={{ fontWeight: 'bold', color: '#788c3c' }}>
-                            {eventName || 'NOME EVENTO'}
-                        </Typography>
-                        <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
-                            {eventDate || 'DATA EVENTO'}
-                        </Typography>
+                    <Box
+                        display="flex"
+                        alignItems="center"
+                        paddingTop={2}
+                        mb={3}
+                        flexWrap="wrap"
+                    >
+                        {/* Box sinistro vuoto per bilanciare */}
+                        <Box sx={{ flex: 1 }} />
+
+                        {/* Box centrale con le informazioni centrate */}
+                        <Box sx={{ flex: 1, textAlign: 'center' }}>
+                            <Typography variant="h3" sx={{ fontWeight: 'bold', color: '#788c3c' }}>
+                                {userName || 'NOME UTENTE'}
+                            </Typography>
+                            <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
+                                {eventName || 'NOME EVENTO'}
+                            </Typography>
+                            <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                                {eventDate || 'DATA EVENTO'}
+                            </Typography>
+                        </Box>
+
+                        {/* Box destro con i bottoni allineati a destra */}
+                        <Box sx={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
+                            <HeaderButtons />
+                        </Box>
                     </Box>
 
                     <Grid container spacing={3}>

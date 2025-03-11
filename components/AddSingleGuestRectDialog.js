@@ -105,7 +105,7 @@ function AddSingleGuestRectDialog({
                 </Typography>
 
                 {/* Sezione Non Assegnati */}
-                <ListSubheader sx={{ color: 'black' }}>Non Assegnati</ListSubheader>
+                <ListSubheader disableSticky sx={{ color: 'black' }}>Non Assegnati</ListSubheader>
                 <List dense>
                     {unassigned.map((guest) => {
                         const isSelected = selectedGuest === guest.id_guest;
@@ -140,30 +140,32 @@ function AddSingleGuestRectDialog({
                         </AccordionSummary>
                         <AccordionDetails>
                             <List dense>
-                                {assignedMap[groupKey].map((guest) => {
-                                    const isSelected = selectedGuest === guest.id_guest;
-                                    return (
-                                        <ListItem
-                                            key={guest.id_guest}
-                                            button
-                                            onClick={() => handleGuestSelect(guest.id_guest)}
-                                            selected={isSelected}
-                                        >
-                                            <ListItemText
-                                                primary={guest.guest_name}
-                                                secondary={`Posizione: ${guest.table_side_position || '-'
-                                                    }`}
-                                            />
-                                            <ListItemSecondaryAction>
-                                                <Checkbox
-                                                    edge="end"
-                                                    checked={isSelected}
-                                                    onChange={() => handleGuestSelect(guest.id_guest)}
+                                {assignedMap[groupKey]
+                                    .slice() // copia l'array per non modificarlo direttamente
+                                    .sort((a, b) => Number(a.table_side_position || 0) - Number(b.table_side_position || 0))
+                                    .map((guest) => {
+                                        const isSelected = selectedGuest === guest.id_guest;
+                                        return (
+                                            <ListItem
+                                                key={guest.id_guest}
+                                                button
+                                                onClick={() => handleGuestSelect(guest.id_guest)}
+                                                selected={isSelected}
+                                            >
+                                                <ListItemText
+                                                    primary={guest.guest_name}
+                                                    secondary={`Posizione: ${guest.table_side_position || '-'}`}
                                                 />
-                                            </ListItemSecondaryAction>
-                                        </ListItem>
-                                    );
-                                })}
+                                                <ListItemSecondaryAction>
+                                                    <Checkbox
+                                                        edge="end"
+                                                        checked={isSelected}
+                                                        onChange={() => handleGuestSelect(guest.id_guest)}
+                                                    />
+                                                </ListItemSecondaryAction>
+                                            </ListItem>
+                                        );
+                                    })}
                             </List>
                         </AccordionDetails>
                     </Accordion>

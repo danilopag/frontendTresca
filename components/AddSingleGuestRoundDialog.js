@@ -78,7 +78,7 @@ function AddSingleGuestRoundDialog({
         try {
             // 1) Rimuovi vecchia assegnazione (se esiste)
             try {
-                await api.delete(`/table-layouts/guest/${selectedGuest}`, {
+                await api.delete(`/table-layouts/round/${selectedGuest}`, {
                     params: { plan: currentPlan },
                 });
             } catch (error) {
@@ -87,7 +87,6 @@ function AddSingleGuestRoundDialog({
 
             // 2) Assegna al tavolo rotondo
             //    table_order = 0 (o quello che usi per "round")
-            //    table_side_position = seatIndex (attenzione: seatIndex + 1 se serve)
             await api.post('/table-layouts', {
                 id_guest: selectedGuest,
                 id_table: table.id_table,
@@ -140,7 +139,7 @@ function AddSingleGuestRoundDialog({
                 </Typography>
 
                 {/* Non assegnati */}
-                <ListSubheader>Non Assegnati</ListSubheader>
+                <ListSubheader disableSticky sx={{ color: 'black' }}>Non Assegnati</ListSubheader>
                 <List dense>
                     {unassigned.map((guest) => {
                         const isSelected = selectedGuest === guest.id_guest;
@@ -175,30 +174,32 @@ function AddSingleGuestRoundDialog({
                         </AccordionSummary>
                         <AccordionDetails>
                             <List dense>
-                                {assignedMap[groupKey].map((guest) => {
-                                    const isSelected = selectedGuest === guest.id_guest;
-                                    return (
-                                        <ListItem
-                                            key={guest.id_guest}
-                                            button
-                                            onClick={() => handleSelect(guest.id_guest)}
-                                            selected={isSelected}
-                                        >
-                                            <ListItemText
-                                                primary={`${guest.guest_name}`}
-                                                secondary={`Posizione: ${guest.table_side_position || '-'
-                                                    }`}
-                                            />
-                                            <ListItemSecondaryAction>
-                                                <Checkbox
-                                                    edge="end"
-                                                    checked={isSelected}
-                                                    onChange={() => handleSelect(guest.id_guest)}
+                                {assignedMap[groupKey]
+                                    .slice() // crea una copia per non modificare l'array originale
+                                    .sort((a, b) => Number(a.table_side_position || 0) - Number(b.table_side_position || 0))
+                                    .map((guest) => {
+                                        const isSelected = selectedGuest === guest.id_guest;
+                                        return (
+                                            <ListItem
+                                                key={guest.id_guest}
+                                                button
+                                                onClick={() => handleSelect(guest.id_guest)}
+                                                selected={isSelected}
+                                            >
+                                                <ListItemText
+                                                    primary={`${guest.guest_name}`}
+                                                    secondary={`Posizione: ${guest.table_side_position || '-'}`}
                                                 />
-                                            </ListItemSecondaryAction>
-                                        </ListItem>
-                                    );
-                                })}
+                                                <ListItemSecondaryAction>
+                                                    <Checkbox
+                                                        edge="end"
+                                                        checked={isSelected}
+                                                        onChange={() => handleSelect(guest.id_guest)}
+                                                    />
+                                                </ListItemSecondaryAction>
+                                            </ListItem>
+                                        );
+                                    })}
                             </List>
                         </AccordionDetails>
                     </Accordion>

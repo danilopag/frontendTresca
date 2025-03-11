@@ -47,6 +47,7 @@ import Chat from '../components/Chat';
 import AlertModal from '../components/AlertModal';
 import ConfirmDialog from '../components/ConfirmDialog';
 import TableCard from '../components/TableCard';
+import HeaderButtons from '../components/HeaderButtons';
 
 import api from '../utils/api';
 
@@ -164,6 +165,18 @@ function Evento() {
         setAlertMessage(msg);
         setAlertOpen(true);
     };
+
+    // useEffect per fare focus sul campo Nome quando il Drawer si apre
+    const nameInputRef = useRef(null);
+
+    useEffect(() => {
+        if (guestDrawerOpen && nameInputRef.current) {
+            // Aggiungiamo un breve delay per far sì che il Drawer sia montato
+            setTimeout(() => {
+                nameInputRef.current.focus();
+            }, 1000);
+        }
+    }, [guestDrawerOpen]);
 
     // *** USE EFFECT => LOAD DATA ***
     useEffect(() => {
@@ -342,9 +355,16 @@ function Evento() {
     const getGuestsWithoutCategory = () => guests.filter((g) => !g.id_category);
 
     const handleIntoleranceChange = (e) => {
-        setGuestIntolerances(e.target.value);
+        const { value } = e.target;
+        if (value.includes('')) {
+            setGuestIntolerances([]);
+        } else {
+            // Altrimenti, usa il valore selezionato filtrando eventuali vuoti (per sicurezza)
+            setGuestIntolerances(value.filter(item => item !== ''));
+        }
         setIntoleranceSelectOpen(false);
     };
+
 
     // *** MAPPA / TAVOLI ***
     const handlePlanSwitch = (e) => {
@@ -792,7 +812,7 @@ function Evento() {
                 const link = document.createElement('a');
                 link.href = url;
                 const dateStr = new Date(eventDate).toLocaleDateString('it-IT');
-                link.download = `Tavoli_${eventName}_${dateStr}_PIANO-${currentPlan}.xlsx`;
+                link.download = `Tavoli_${userName}_${dateStr}_PIANO-${currentPlan}.xlsx`;
                 link.click();
                 URL.revokeObjectURL(url);
             } catch (error) {
@@ -853,7 +873,7 @@ function Evento() {
             const pdf = new jsPDF('p', 'mm', 'a4');
             pdf.setFontSize(12);
             pdf.setFont(undefined, 'bold');
-            pdf.text(`${eventName}`, 105, 10, { align: 'center' });
+            pdf.text(`${userName} - ${eventName}`, 105, 10, { align: 'center' });
             pdf.setFontSize(11);
             pdf.setFont(undefined, 'normal');
             pdf.text(`Data Evento: ${eventDate} - Piano: ${currentPlan}`, 105, 17, { align: 'center' });
@@ -913,7 +933,7 @@ function Evento() {
             });
 
             // 5) Salva il PDF
-            pdf.save(`Mappa_${eventName}_${eventDate}_PIANO-${currentPlan}.pdf`);
+            pdf.save(`Mappa_${userName}_${eventDate}_PIANO-${currentPlan}.pdf`);
         } catch (error) {
             console.error(error);
             showAlert('Errore', 'Impossibile generare PDF');
@@ -922,20 +942,39 @@ function Evento() {
         }
     };
 
+
     // *** RENDER PRINCIPALE ***
     return (
         <DndProvider backend={dndBackend}>
             <Container maxWidth="xl">
-                    {/* Titolo / Data */}
-                    <Box textAlign="center" mb={3} paddingTop={2}>
-                        <Typography variant="h3" sx={{ fontWeight: 'bold', color: '#788c3c' }}>
-                            {eventName || 'NOME EVENTO'}
-                        </Typography>
-                        <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
-                            {eventDate || 'DATA EVENTO'}
-                        </Typography>
-                    </Box>
+                    <Box
+                        display="flex"
+                        alignItems="center"
+                        paddingTop={2}
+                        mb={3}
+                        flexWrap="wrap"
+                    >
+                        {/* Box sinistro vuoto per bilanciare */}
+                        <Box sx={{ flex: 1 }} />
 
+                        {/* Box centrale con le informazioni centrate */}
+                        <Box sx={{ flex: 1, textAlign: 'center' }}>
+                            <Typography variant="h3" sx={{ fontWeight: 'bold', color: '#788c3c' }}>
+                                {userName || 'NOME UTENTE'}
+                            </Typography>
+                            <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
+                                {eventName || 'NOME EVENTO'}
+                            </Typography>
+                            <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                                {eventDate || 'DATA EVENTO'}
+                            </Typography>
+                        </Box>
+
+                        {/* Box destro con i bottoni allineati a destra */}
+                        <Box sx={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
+                            <HeaderButtons />
+                        </Box>
+                    </Box>
                     <Grid container spacing={3}>
                         {/* SINISTRA: INVITATI */}
                         <Grid item xs={12} md={4}>
@@ -1279,6 +1318,7 @@ function Evento() {
                             margin="normal"
                             value={guestName}
                             onChange={(e) => setGuestName(e.target.value)}
+                            inputRef={nameInputRef}
                         />
                         <FormControl fullWidth margin="normal">
                             <InputLabel id="cat-label">Gruppo</InputLabel>
@@ -1299,9 +1339,7 @@ function Evento() {
 
                         {/* Intolleranze */}
                         <FormControl fullWidth margin="normal">
-                            <InputLabel id="intol-label">
-                                Intolleranze
-                            </InputLabel>
+                            <InputLabel id="intol-label">Intolleranze</InputLabel>
                             <Select
                                 labelId="intol-label"
                                 label="Intolleranze"
@@ -1309,11 +1347,18 @@ function Evento() {
                                 open={intoleranceSelectOpen}
                                 onOpen={() => setIntoleranceSelectOpen(true)}
                                 onClose={() => setIntoleranceSelectOpen(false)}
-                                value={guestIntolerances || ''}
+                                value={guestIntolerances || []}
                                 onChange={handleIntoleranceChange}
-                                renderValue={(selected) => selected.join(', ')}
+                                renderValue={(selected) => {
+                                    if (!selected || selected.length === 0) {
+                                        return "Nessuna intolleranza";
+                                    }
+                                    return selected.join(', ');
+                                }}
                             >
-                                <MenuItem value="">Nessuna intolleranza</MenuItem>
+                                <MenuItem value="">
+                                    Nessuna intolleranza
+                                </MenuItem>
                                 {intoleranceLabels.map((label) => (
                                     <MenuItem key={label} value={label}>
                                         {label}

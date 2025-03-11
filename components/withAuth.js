@@ -27,7 +27,7 @@ const withAuth = (WrappedComponent) => {
 
                 if (!token) {
                     // Se non c'è token, reindirizza a /login
-                    router.replace('/');
+                    router.push('/');
                     setLoading(false);
                     return;
                 }
@@ -35,7 +35,7 @@ const withAuth = (WrappedComponent) => {
                 const payload = isTokenValid(token);
                 if (!payload) {
                     // Se il token non è valido, reindirizza a /login
-                    router.replace('/');
+                    router.push('/');
                     setLoading(false);
                     return;
                 }
@@ -44,11 +44,11 @@ const withAuth = (WrappedComponent) => {
                 const allowedRoutes = payload.allowed_routes || []; // Autorizzazioni definite nel token
                 if (payload.is_admin === 1) {
                     // Se admin, reindirizza a /admin/dashboard
-                    //router.replace('/admin/dashboard');
+                    router.push('/admin/dashboard');
                     setLoading(false);
                 } else if (!allowedRoutes.includes(currentPath)) {
                     // Se l'utente non ha accesso alla route attuale, reindirizza a /onePageEvent
-                    router.replace(allowedRoutes[0]);
+                    router.push(allowedRoutes[0]);
                     setLoading(false);
                 } else {
                     // L'utente ha accesso: termina il caricamento

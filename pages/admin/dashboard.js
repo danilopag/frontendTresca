@@ -23,7 +23,8 @@ import {
     TextField,
     FormControl,
     MenuItem,
-    CircularProgress
+    CircularProgress,
+    InputAdornment
 } from '@mui/material';
 import { styled, useTheme } from '@mui/material/styles';
 import {
@@ -32,6 +33,9 @@ import {
     Visibility as VisibilityIcon,
     Delete as DeleteIcon,
     Edit as EditIcon,
+    Logout as LogoutIcon,
+    VpnKey as VpnKeyIcon,
+    VisibilityOff as VisibilityOffIcon,
 } from '@mui/icons-material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import AdminChat from '../../components/AdminChat';
@@ -121,6 +125,10 @@ const AdminDashboard = () => {
     const [adminCurrentPwd, setAdminCurrentPwd] = useState('');
     const [adminNewPwd1, setAdminNewPwd1] = useState('');
     const [adminNewPwd2, setAdminNewPwd2] = useState('');
+    // Stati per la visibilità dei campi password
+    const [showAdminCurrentPwd, setShowAdminCurrentPwd] = useState(false);
+    const [showAdminNewPwd1, setShowAdminNewPwd1] = useState(false);
+    const [showAdminNewPwd2, setShowAdminNewPwd2] = useState(false);
 
     // Dialog per modifica password UTENTE
     const [changePasswordDialogOpen, setChangePasswordDialogOpen] = useState(false);
@@ -419,43 +427,45 @@ const AdminDashboard = () => {
                         </Typography>
 
                         <Box display="flex" alignItems="center" gap={2} mt={isMobile ? 2 : 0}>
-                            <Button
-                                variant="contained"
-                                onClick={handleOpenAdminChangePwdDialog}
-                                sx={{
-                                    backgroundColor: '#788c3c',
-                                    color: 'white',
-                                    ':hover': { backgroundColor: '#657a33' },
-                                }}
-                            >
-                                Modifica Password
-                            </Button>
-
+                            
                             {!isMobile && (
                                 <Button
-                                    variant="contained"
                                     onClick={handleOpenRegisterDialog}
                                     sx={{
-                                        backgroundColor: '#788c3c',
-                                        color: 'white',
-                                        ':hover': { backgroundColor: '#657a33' },
+                                        backgroundColor: 'white',
+                                        color: '#788c3c',
+                                        ':hover': { backgroundColor: '#f0f0f0' },
                                     }}
                                 >
                                     Registra Nuovo Utente
                                 </Button>
                             )}
+                            
+                            <Tooltip title="Modifica Password">
+                                <IconButton
+                                    onClick={handleOpenAdminChangePwdDialog}
+                                    sx={{
+                                        backgroundColor: 'white',
+                                        color: 'primary.main',
+                                        ':hover': { backgroundColor: '#f0f0f0' },
+                                    }}
+                                >
+                                    <VpnKeyIcon />
+                                </IconButton>
+                            </Tooltip>
 
-                            <Button
-                                variant="contained"
-                                onClick={handleLogout}
-                                sx={{
-                                    backgroundColor: 'red',
-                                    color: 'white',
-                                    ':hover': { backgroundColor: '#b71c1c' },
-                                }}
-                            >
-                                Logout
-                            </Button>
+                            <Tooltip title="Logout">
+                                <IconButton
+                                    onClick={handleLogout}
+                                    sx={{
+                                        backgroundColor: 'white',
+                                        color: '#D70040',
+                                        ':hover': { backgroundColor: '#f0f0f0' },
+                                    }}
+                                >
+                                    <LogoutIcon />
+                                </IconButton>
+                            </Tooltip>
                         </Box>
                     </Box>
 
@@ -812,27 +822,63 @@ const AdminDashboard = () => {
                 <DialogContent>
                     <TextField
                         label="Password Attuale"
-                        type="password"
+                        type={showAdminCurrentPwd ? 'text' : 'password'}
                         fullWidth
                         margin="dense"
                         value={adminCurrentPwd}
                         onChange={(e) => setAdminCurrentPwd(e.target.value)}
+                        InputProps={{
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    <IconButton
+                                        onClick={() => setShowAdminCurrentPwd(!showAdminCurrentPwd)}
+                                        edge="end"
+                                    >
+                                        {showAdminCurrentPwd ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                                    </IconButton>
+                                </InputAdornment>
+                            ),
+                        }}
                     />
                     <TextField
                         label="Nuova Password"
-                        type="password"
+                        type={showAdminNewPwd1 ? 'text' : 'password'}
                         fullWidth
                         margin="dense"
                         value={adminNewPwd1}
                         onChange={(e) => setAdminNewPwd1(e.target.value)}
+                        InputProps={{
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    <IconButton
+                                        onClick={() => setShowAdminNewPwd1(!showAdminNewPwd1)}
+                                        edge="end"
+                                    >
+                                        {showAdminNewPwd1 ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                                    </IconButton>
+                                </InputAdornment>
+                            ),
+                        }}
                     />
                     <TextField
                         label="Conferma Nuova Password"
-                        type="password"
+                        type={showAdminNewPwd2 ? 'text' : 'password'}
                         fullWidth
                         margin="dense"
                         value={adminNewPwd2}
                         onChange={(e) => setAdminNewPwd2(e.target.value)}
+                        InputProps={{
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    <IconButton
+                                        onClick={() => setShowAdminNewPwd2(!showAdminNewPwd2)}
+                                        edge="end"
+                                    >
+                                        {showAdminNewPwd2 ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                                    </IconButton>
+                                </InputAdornment>
+                            ),
+                        }}
                     />
                 </DialogContent>
                 <DialogActions>

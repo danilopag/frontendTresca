@@ -3,9 +3,8 @@
  * Copyright (c) 2025, Danilo Paglialunga.
  * Tutti i diritti riservati.
  */
- 
-import { useState } from 'react';
-import api from '../utils/api';
+
+import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import {
   Container,
@@ -16,12 +15,14 @@ import {
   Card,
   CardContent,
   useMediaQuery,
+  IconButton,
 } from '@mui/material';
 import AlertModal from '../components/AlertModal';
 import { styled, useTheme } from '@mui/material/styles';
-import { Email, Lock } from '@mui/icons-material';
+import { Email, Lock, Visibility, VisibilityOff } from '@mui/icons-material';
 import withAuth from '../components/withAuth';
 import '@fontsource/playfair-display';
+import api from '../utils/api';
 
 const Background = styled('div')({
   backgroundImage: 'url(/cover.jpg)',
@@ -51,7 +52,7 @@ const FormContainer = styled(Card)(({ theme }) => ({
   maxWidth: 400,
   margin: 'auto',
   marginTop: theme.spacing(4),
-  border: '1px solid #788c3c', // Bordo verde simile alla dashboard
+  border: '1px solid #788c3c',
   borderRadius: theme.shape.borderRadius,
   backgroundColor: 'rgba(255, 255, 255, 0.8)',
   backdropFilter: 'blur(10px)',
@@ -61,6 +62,8 @@ const MainPage = () => {
   // Stato per i campi di login
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
+  // Stato per mostrare/nascondere la password
+  const [showPassword, setShowPassword] = useState(false);
   // Stato per l'alert
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertTitle, setAlertTitle] = useState('');
@@ -106,6 +109,7 @@ const MainPage = () => {
         <FormContainer elevation={10}>
           <CardContent>
             <Box textAlign="center" mb={2}>
+              {/* Se ESLint dà problemi con l'elemento <img>, puoi valutare di usare Next.js Image */}
               <img
                 src="/logoTrescaPng.PNG"
                 alt="Logo Tresca"
@@ -117,7 +121,6 @@ const MainPage = () => {
                 }}
               />
             </Box>
-
             <Box component="form" onSubmit={handleLoginSubmit} mt={2}>
               <TextField
                 label="Email"
@@ -132,12 +135,12 @@ const MainPage = () => {
                       <Email />
                     </InputAdornment>
                   ),
+                  autoComplete: 'email',
                 }}
               />
-
               <TextField
                 label="Password"
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 fullWidth
                 margin="normal"
                 value={loginPassword}
@@ -148,10 +151,19 @@ const MainPage = () => {
                       <Lock />
                     </InputAdornment>
                   ),
-                  autoComplete: 'current-password', // Aggiungi questa linea
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={() => setShowPassword(!showPassword)}
+                        edge="end"
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                  autoComplete: 'current-password',
                 }}
               />
-
               <Button
                 type="submit"
                 variant="contained"
@@ -160,16 +172,12 @@ const MainPage = () => {
                   mt: 3,
                   backgroundColor: '#788c3c',
                   color: 'white',
-                  ':hover': {
-                    backgroundColor: '#657a33',
-                  },
+                  ':hover': { backgroundColor: '#657a33' },
                 }}
               >
                 Accedi
               </Button>
             </Box>
-
-            {/* AlertModal per gli errori */}
             <AlertModal
               open={alertOpen}
               onClose={() => setAlertOpen(false)}

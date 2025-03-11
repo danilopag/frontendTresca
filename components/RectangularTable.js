@@ -65,7 +65,7 @@ function RectangularTable({
         try {
             // Rimuovo la vecchia assegnazione se esiste
             try {
-                await api.delete(`/table-layouts/guest/${guestId}`, { params: { plan: currentPlan } });
+                await api.delete(`/table-layouts/rect/${guestId}`, { params: { plan: currentPlan } });
             } catch (error) {
                 // se non c'era, ignora
             }
