@@ -83,6 +83,21 @@ function RectangularTable({
             // Conta quanti posti sono già occupati su questo lato
             const existingFilled = seatsArray.filter((s) => !s.isEmpty).length;
 
+            // Se sideOrder è 1 o 3, il numero massimo di assegnazioni possibili è 1.
+            if (sideOrder === 1 || sideOrder === 3) {
+                const availableSpots = 1 - existingFilled;
+                // Se non ci sono posti disponibili, chiude il dialogo ed esce.
+                if (availableSpots <= 0) {
+                    setOpenDialog(false);
+                    return;
+                }
+                // Se l'utente ha selezionato più invitati del numero di posti disponibili,
+                // vengono considerati solo quelli necessari.
+                if (guestIds.length > availableSpots) {
+                    guestIds = guestIds.slice(0, availableSpots);
+                }
+            }
+            
             await Promise.all(
                 guestIds.map(async (guestId, index) => {
                     // Rimuove eventuali assegnazioni preesistenti
